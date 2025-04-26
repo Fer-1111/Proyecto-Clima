@@ -1,13 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 
 function App() {
-  const [activity, setActivity] = useState({
-    name: '',
-    temperatureRange: [10, 20],
-    maxWind: 15,
-    allowRain: false,
-  });
+  const [activitiesList, setActivitiesList] = useState<any[]>([]);
+  const [selectedActivity, setSelectedActivity] = useState<any | null>(null);
 
   const [weather, setWeather] = useState({
     temperature: 0,
@@ -18,10 +14,28 @@ function App() {
   const [recommendation, setRecommendation] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // 🚀 Cargar actividades cuando inicia
+  useEffect(() => {
+    const fetchActivities = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/activities');
+        const data = await response.json();
+        setActivitiesList(data);
+      } catch (err) {
+        console.error('Error al cargar actividades:', err);
+      }
+    };
+
+    fetchActivities();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    console.log('Enviando datos:', activity, weather); // ✅ Confirmar que se ejecuta
+    if (!selectedActivity) {
+      setError('Debes seleccionar una actividad');
+      return;
+    }
 
     try {
       const response = await fetch('http://localhost:3000/weather', {
@@ -29,7 +43,7 @@ function App() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ activity, weather }),
+        body: JSON.stringify({ activity: selectedActivity, weather }),
       });
 
       if (!response.ok) {
@@ -51,70 +65,66 @@ function App() {
       <h1>Recomendaciones Climáticas</h1>
 
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', maxWidth: '400px', gap: '1rem' }}>
-        <h2>Actividad</h2>
-        <input
-          type="text"
-          placeholder="Nombre"
-          value={activity.name}
-          onChange={(e) => setActivity({ ...activity, name: e.target.value })}
-        />
+        
+        <h2>Seleccionar Actividad</h2>
+        <select onChange={(e) => {
+          const selected = activitiesList.find((a) => a.name === e.target.value);
+          setSelectedActivity(selected);
+        }}>
+          <option value="">-- Elige una actividad --</option>
+          {activitiesList.map((activity) => (
+            <option key={activity.name} value={activity.name}>
+              {activity.name}
+            </option>
+          ))}
+        </select>
 
-        <input
-          type="number"
-          placeholder="Temperatura mínima"
-          value={activity.temperatureRange[0]}
-          onChange={(e) =>
-            setActivity({ ...activity, temperatureRange: [Number(e.target.value), activity.temperatureRange[1]] })
-          }
-        />
-
-        <input
-          type="number"
-          placeholder="Temperatura máxima"
-          value={activity.temperatureRange[1]}
-          onChange={(e) =>
-            setActivity({ ...activity, temperatureRange: [activity.temperatureRange[0], Number(e.target.value)] })
-          }
-        />
-
-        <input
-          type="number"
-          placeholder="Viento máximo"
-          value={activity.maxWind}
-          onChange={(e) => setActivity({ ...activity, maxWind: Number(e.target.value) })}
-        />
-
-        <label>
-          <input
-            type="checkbox"
-            checked={activity.allowRain}
-            onChange={(e) => setActivity({ ...activity, allowRain: e.target.checked })}
-          />
-          ¿Permite lluvia?
-        </label>
+        {selectedActivity && (
+          <>
+            <div>
+              <strong>Actividad:</strong> {selectedActivity.name}
+            </div>
+            <div>
+              <strong>Temperaturas:</strong> {selectedActivity.temperatureRange[0]}°C - {selectedActivity.temperatureRange[1]}°C
+            </div>
+            <div>
+              <strong>Viento máximo:</strong> {selectedActivity.maxWind} km/h
+            </div>
+            <div>
+              <strong>Permite lluvia:</strong> {selectedActivity.allowRain ? 'Sí' : 'No'}
+            </div>
+          </>
+        )}
 
         <h2>Clima Simulado</h2>
 
-        <input
-          type="number"
-          placeholder="Temperatura actual"
-          value={weather.temperature}
-          onChange={(e) => setWeather({ ...weather, temperature: Number(e.target.value) })}
-        />
+        <label>
+          Temperatura actual (°C):
+          <input
+            type="number"
+            value={weather.temperature}
+            onChange={(e) => setWeather({ ...weather, temperature: Number(e.target.value) })}
+          />
+        </label>
 
-        <input
-          type="number"
-          placeholder="Viento actual"
-          value={weather.wind}
-          onChange={(e) => setWeather({ ...weather, wind: Number(e.target.value) })}
-        />
+        <label>
+          Viento actual (km/h):
+          <input
+            type="number"
+            value={weather.wind}
+            onChange={(e) => setWeather({ ...weather, wind: Number(e.target.value) })}
+          />
+        </label>
 
-        <input
-          type="number"
-          placeholder="Precipitación actual"
-          value={weather.precipitation}
-          onChange={(e) => setWeather({ ...weather, precipitation: Number(e.target.value) })}
-        />
+        <label>
+          Precipitación actual (mm):
+          <input
+            type="number"
+            value={weather.precipitation}
+            onChange={(e) => setWeather({ ...weather, precipitation: Number(e.target.value) })}
+          />
+        </label>
+
 
         <button type="submit">Obtener recomendación</button>
       </form>
