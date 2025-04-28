@@ -1,17 +1,17 @@
 import { Controller, Post, Get, Body } from '@nestjs/common';
-import { ActivitiesService, Activity } from './activities.service';
+import { ActivitiesService, Actividad } from './activities.service';
 
-@Controller('activities')
+@Controller('actividades')
 export class ActivitiesController {
   constructor(private readonly activitiesService: ActivitiesService) {}
 
   @Post()
-  create(@Body() activity: Activity) {
-    return this.activitiesService.create(activity);
+  crear(@Body() actividad: Actividad) {
+    return this.activitiesService.crear(actividad);
   }
 
   @Get()
-  findAll() {
-    return this.activitiesService.findAll();
+  obtenerTodas() {
+    return this.activitiesService.obtenerTodas();
   }
 }

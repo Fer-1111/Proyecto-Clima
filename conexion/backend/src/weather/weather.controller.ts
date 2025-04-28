@@ -1,14 +1,13 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { WeatherService } from './weather.service';
 
-@Controller('weather')
+@Controller('clima')
 export class WeatherController {
   constructor(private readonly weatherService: WeatherService) {}
 
   @Post()
-  getRecommendation(@Body() body: any) {
-    console.log('BODY RECIBIDO:', body); // 👈 Agregado
-    const { activity, weather } = body;
-    return this.weatherService.getRecommendation(activity, weather);
+  obtenerRecomendacion(@Body() body: any) {
+    const { actividad, clima } = body;
+    return this.weatherService.obtenerRecomendacion(actividad, clima);
   }
 }

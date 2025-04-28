@@ -1,44 +1,44 @@
 import { Injectable } from '@nestjs/common';
 
-export type Activity = {
-  name: string;
-  temperatureRange: [number, number];
-  maxWind: number;
-  allowRain: boolean;
+export type Actividad = {
+  nombre: string;
+  rangoTemperatura: [number, number];
+  vientoMaximo: number;
+  permiteLluvia: boolean;
 };
 
 @Injectable()
 export class ActivitiesService {
-  private activities: Activity[] = [
+  private actividades: Actividad[] = [
     {
-      name: 'Correr',
-      temperatureRange: [10, 20],
-      maxWind: 15,
-      allowRain: false,
+      nombre: 'Correr',
+      rangoTemperatura: [10, 20],
+      vientoMaximo: 15,
+      permiteLluvia: false,
     },
     {
-      name: 'Senderismo',
-      temperatureRange: [10, 18],
-      maxWind: 10,
-      allowRain: false,
+      nombre: 'Senderismo',
+      rangoTemperatura: [10, 18],
+      vientoMaximo: 10,
+      permiteLluvia: false,
     },
     {
-      name: 'Jardinería',
-      temperatureRange: [15, 25],
-      maxWind: 20,
-      allowRain: true,
+      nombre: 'Jardinería',
+      rangoTemperatura: [15, 25],
+      vientoMaximo: 20,
+      permiteLluvia: true,
     },
   ];
 
-  create(activity: Activity) {
-    this.activities.push(activity);
+  crear(actividad: Actividad) {
+    this.actividades.push(actividad);
     return {
-      message: 'Actividad registrada correctamente',
-      activity,
+      mensaje: 'Actividad registrada correctamente',
+      actividad,
     };
   }
 
-  findAll() {
-    return this.activities;
+  obtenerTodas() {
+    return this.actividades;
   }
 }
